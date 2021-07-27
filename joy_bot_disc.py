@@ -6,6 +6,8 @@ from lexicon_bot import lex_bot
 import random
 from asyncio import sleep
 from discord.utils import get
+import requests
+from bs4 import BeautifulSoup
 
 
 intents = discord.Intents.default()
@@ -71,10 +73,14 @@ async def help_admin(ctx, amount=1):
     emb = discord.Embed(title="Команды Joy бота", color=15105570)
 
     emb.add_field(name="{}help".format(settings["prefix"]), value="Команды бота для пользователей.")
-    emb.add_field(name="{}leave_voice".format(settings["prefix"]), value="покинул")
+
+    emb.add_field(name="{}random_post".format(settings["prefix"]), value="Рандомный пост с JoyReactor.")
+
     emb.add_field(name="{}clear".format(settings["prefix"]), value="Очистка чата от 1 до 100 сообщений.")
+
     emb.add_field(name="{}join_voice".format(settings["prefix"]),
                   value="Добавить бота к себе в голосовой канал.")
+
     emb.add_field(name="{}leave_voice".format(settings["prefix"]),
                   value="Удалить бота из голосового чата.")
 
@@ -95,9 +101,8 @@ async def help(ctx, amount=1):
     await ctx.channel.purge(limit=amount)
     emb = discord.Embed(title="Навигация", description="https://qna.habr.com/", url="https://qna.habr.com/", color=0x00ff00)
 
-    emb.add_field(name="{}join_voice".format(settings["prefix"]),
-                  value="Добавить бота к себе в голосовой канал.")
-    emb.add_field(name="{}clear".format(settings["prefix"]), value="Очистка чата")
+    emb.add_field(name="{}random_post".format(settings["prefix"]), value="Рандомный пост с JoyReactor.")
+
     emb.add_field(name="{}clear".format(settings["prefix"]), value="Очистка чата")
     emb.add_field(name="{}clear".format(settings["prefix"]), value="Очистка чата")
 
@@ -138,6 +143,36 @@ async def leave_voice(ctx, amount=1):  # есть баги
     if voice and voice.is_connected():
         await voice.disconnect()
         await ctx.send(f"Вождь покинул канал '{channel}'.")
+
+
+# рандомный пост
+@bot.command()
+async def random_post(ctx, amount=1):
+    await ctx.channel.purge(limit=amount)
+
+    def parse():
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"
+                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"
+        }
+        url = "http://joyreactor.cc/best"
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.content, "html.parser")
+        items = soup.findAll("div", class_="postContainer")
+        comps = []
+
+        for item in items:
+            comps.append({
+                "link": "http://joyreactor.cc" + item.find("a", class_="link").get("href")
+            })
+
+        x = random.choices(comps)
+        q = x[0]["link"]
+        print(x[0]["link"])
+        return q
+
+    y = parse()
+    await ctx.send(f'{y}')
 
 
 bot.run(settings["token"])
