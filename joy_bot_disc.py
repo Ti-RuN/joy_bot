@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 from config import settings
-from lexicon_bot import forbidden_words
-from lexicon_bot import lex_bot
+from lexicon_bot import forbidden_words, lex_bot
 import random
 from asyncio import sleep
 from discord.utils import get
@@ -41,7 +40,7 @@ async def on_member_join(member):
 @bot.event
 async def on_message(message):
     msg = message.content.lower()
-    if msg in forbidden_words:  # не удаляет сообщение если в месте с кл.словом есть другой текст испр!!!
+    if msg in forbidden_words:  # не удаляет сообщение если вместе с кл.словом есть другой текст испр!!!
         await message.delete()
         await message.author.send(
             f"Вождь следит за тобой {message.author.name}, не используй в чате '{msg}', а то получишь по жопке!"
@@ -82,7 +81,7 @@ async def help_admin(ctx, amount=1):
                   value="Добавить бота к себе в голосовой канал.")
 
     emb.add_field(name="{}leave_voice".format(settings["prefix"]),
-                  value="Удалить бота из голосового чата.")
+                  value="Удалить бота из голосового канала.")
 
     author = ctx.author
     await ctx.send(f"{author.mention}", embed=emb)
@@ -112,7 +111,7 @@ async def help(ctx, amount=1):
     emb.add_field(name="{}join_voice".format(settings["prefix"]),
                   value="Добавить бота к себе в голосовой канал.")
     emb.add_field(name="{}leave_voice".format(settings["prefix"]),
-                  value="Удалить бота из голосового чата.")
+                  value="Удалить бота из голосового канала.")
 
     author = ctx.author
     await ctx.send(f"{author.mention}", embed=emb)
